@@ -12,7 +12,8 @@
         sortBy: 'none',
         links: true,
         mock: false,
-        useHttp: false
+        useHttp: false,
+        numberToReturn: 10000
       };
       if (typeof params === 'object') {
         for (option in params) {
@@ -130,7 +131,7 @@
         }
         fragment = document.createDocumentFragment();
         if ((this.options.filter != null) && typeof this.options.filter === 'function') {
-          images = this._filter(images, this.options.filter);
+          images = this._filter(images, this.options.filter, this.options.numberToReturn);
         }
         if ((this.options.template != null) && typeof this.options.template === 'string') {
           htmlString = '';
@@ -336,18 +337,20 @@
       data.sort(sorter.bind(this));
       return data;
     };
-
-    Instafeed.prototype._filter = function(images, filter) {
-      var filteredImages, fn, i, image, len;
+    
+    Instafeed.prototype._filter = function(images, filter, nOutput) {
+      var filteredImages, fn, i, j, image, len;
       filteredImages = [];
-      fn = function(image) {
-        if (filter(image)) {
-          return filteredImages.push(image);
-        }
-      };
+      j = 0;
       for (i = 0, len = images.length; i < len; i++) {
         image = images[i];
-        fn(image);
+        if (filter(image)) {
+          filteredImages.push(image);
+          j = j + 1;
+          if (j == nOutput) {
+            break;
+          }
+        }
       }
       return filteredImages;
     };
